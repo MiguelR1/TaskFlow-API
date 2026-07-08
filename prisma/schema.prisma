@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["login_prueba", "public"]
+}
+
+model User {
+  id     Int     @id @default(autoincrement())
+  email  String  @unique
+  nombre String?
+  cedula String?
+
+  @@schema("login_prueba")
+}
