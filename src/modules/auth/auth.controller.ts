@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 import { authService } from './auth.service';
 import { RegisterUserDto } from './auth.dto';
 
@@ -28,6 +28,31 @@ export class authController {
 
         } catch (error:any) {
             res.status(500).json({ message: error.message || "Error registrando usuario" });
+        }
+    }
+
+    async login(req: Request, res: Response) {
+        try {
+            const { email, cedula, password }: RegisterUserDto = req.body;
+
+            if ((!email && !cedula) || !password) {
+                return res.status(400).json({ message: "Faltan campos requeridos" });
+            }
+
+            const usuarioEncontrado = await authServiceI.login({ email, cedula, password });
+
+            if (usuarioEncontrado.ok) {
+                return res.status(200).json({ 
+                    mensaje: "Usuario logeado exitosamente", 
+                    usuario: usuarioEncontrado.usuario, 
+                    token: usuarioEncontrado.token 
+                });
+            } else {
+                return res.status(401).json({ message: usuarioEncontrado.mensaje || "Credenciales inválidas" });
+            }
+
+        }catch (error:any) {
+            res.status(500).json({ message: error.message || "Error en el login" });
         }
     }
 

@@ -21,10 +21,23 @@ export class authRepository {
         return await bcrypt.hash(password, 10);
     }
 
+    async comparePassword(password:string, passwordHash:string){
+        return await bcrypt.compare(password, passwordHash);
+    }
+    
     async registerUser(userData: RegisterUserDto) {
         return await prisma.user.create({
             data: userData
         });
+    }
+    
+    async loginUser(email: string, cedula:string) {
+        
+        return await prisma.user.findFirst({
+            where: {
+                OR: [ { email }, { cedula } ]
+            }
+        })
     }
 
 }
