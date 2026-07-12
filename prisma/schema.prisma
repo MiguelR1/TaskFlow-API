@@ -8,12 +8,70 @@ datasource db {
   schemas  = ["login_prueba", "public"]
 }
 
-model User {
+model Usuario {
   id       Int     @id @default(autoincrement())
   email    String  @unique
   nombre   String?
-  cedula   String?
+  cedula   String @unique
   password String?
 
+  // Relación: Un usuario tiene muchos proyectos (1 a N)
+  projects      Proyecto[] 
+  
+  // Relaciones múltiples: Tareas creadas vs Tareas asignadas
+  tareasCreadas  Tarea[]    @relation("tareaCreador")
+  tareasAsignadas Tarea[]    @relation("tareaAsignada")
+
   @@schema("login_prueba")
+}
+
+model Proyecto {
+  id          String   @id @default(uuid())
+  nombre        String
+  descripcion String?  // El signo de interrogación indica que es opcional
+  
+  // Relación: Un proyecto pertenece a UN dueño (Usuario)
+  duenoId     Int
+  dueno       Usuario     @relation(fields: [duenoId], references: [id])
+  
+  // Relación: Un proyecto tiene muchas tareas
+  tareas       Tarea[]
+  
+  fechaCreado   DateTime @default(now())
+
+  @@schema("login_prueba")
+}
+
+model Tarea {
+  id          String   @id @default(uuid())
+  titulo       String
+  descripcion String?
+  estado      Estado   @default(Pendiente)
+  
+  // Relación: A qué proyecto pertenece esta tarea
+  proyectoId   String
+  proyecto     Proyecto  @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  
+  // Relación: Quién CREÓ la tarea
+  creadorId   Int
+  creador     Usuario     @relation("tareaCreador", fields: [creadorId], references: [id])
+  
+  // Relación: A quién está ASIGNADA la tarea
+  asignadorId  Int?  // Opcional, puede no tener asignado al principio
+  asignado    Usuario?    @relation("tareaAsignada", fields: [asignadorId], references: [id])
+  
+  fechaTerminada     DateTime?
+  fechaCreada   DateTime @default(now())
+
+  @@schema("login_prueba")
+}
+
+// Enum para estandarizar los estados de la tarea
+enum Estado {
+  Pendiente
+  enProgreso
+  Terminado
+
+  @@schema("login_prueba")
+
 }

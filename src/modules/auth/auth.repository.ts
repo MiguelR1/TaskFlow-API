@@ -5,13 +5,13 @@ import { RegisterUserDto } from './auth.dto';
 export class authRepository {
 
     async findByEmail(email: string) {
-        return await prisma.user.findFirst({
+        return await prisma.usuario.findFirst({
             where: { email }
         });
     }
 
     async findByCedula(cedula: string) {
-        return await prisma.user.findFirst({
+        return await prisma.usuario.findFirst({
             where: { cedula }
         });
     }
@@ -26,14 +26,14 @@ export class authRepository {
     }
     
     async registerUser(userData: RegisterUserDto) {
-        return await prisma.user.create({
+        return await prisma.usuario.create({
             data: userData
         });
     }
     
     async loginUser(email: string, cedula:string) {
         
-        return await prisma.user.findFirst({
+        return await prisma.usuario.findFirst({
             where: {
                 OR: [ { email }, { cedula } ]
             }
