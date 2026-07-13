@@ -4,6 +4,7 @@ import authRoute from "../src/modules/auth/auth.routes";
 import projectRoute from "../src/modules/projects/projects.routes";
 
 import { authMiddleware } from "./middlewares/authMiddleware";
+import { errorMiddleware } from "./middlewares/req.Middleware";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,9 @@ app.use("/api/auth", authRoute);
 
 //Projects
 app.use("/api/projects", projectRoute);
+
+//Middleware para mostrar errores tipados estrictos con Zod
+app.use(errorMiddleware);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

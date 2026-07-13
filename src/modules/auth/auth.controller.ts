@@ -1,15 +1,20 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { authService } from './auth.service';
 import { RegisterUserDto } from './auth.dto';
+import { loginUserSchema, registroUserSchema } from '../users/user.dto';
 
 const authServiceI = new authService();
 
 export class authController {
 
-    async register(req: Request, res: Response) {
+    async register(req: Request, res: Response, next: NextFunction) {
         
         try {
-            const { nombre, email, password, cedula }: RegisterUserDto = req.body;
+
+            const validateData = registroUserSchema.parse(req.body);
+            const { nombre, email, password, cedula } = validateData;
+
+            // const { nombre, email, password, cedula } = req.body;
 
             if (!nombre || !email || !password || !cedula) {
                 return res.status(400).json({ mensaje: "Faltan campos requeridos" });
@@ -27,18 +32,20 @@ export class authController {
             }
 
         } catch (error:any) {
-            res.status(500).json({ message: error.message || "Error registrando usuario" });
+           next(error);
         }
     }
 
-    async login(req: Request, res: Response) {
+    async login(req: Request, res: Response, next: NextFunction) {
         try {
-            const { email, cedula, password }: RegisterUserDto = req.body;
+
+            const validateData = loginUserSchema.parse(req.body);
+            const { email, password, cedula } = validateData;
 
             if ((!email && !cedula) || !password) {
                 return res.status(400).json({ message: "Faltan campos requeridos" });
             }
-
+            
             const usuarioEncontrado = await authServiceI.login({ email, cedula, password });
 
             if (usuarioEncontrado.ok) {
@@ -52,7 +59,7 @@ export class authController {
             }
 
         }catch (error:any) {
-            res.status(500).json({ message: error.message || "Error en el login" });
+           next(error);
         }
     }
 
