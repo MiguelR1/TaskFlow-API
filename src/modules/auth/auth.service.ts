@@ -1,21 +1,24 @@
 import { authRepository } from '../auth/auth.repository';
 import {authMiddleware} from '../../middlewares/authMiddleware';
 import { loginUsuario, registerUsuario } from '../users/user.dto';
+import { userRepository } from '../users/user.repository';
 
 
 export class authService{
     
     authRepositoryI = new authRepository();
+
+    userRepositoryI = new userRepository();
     
     async registro(userData: registerUsuario) {
 
-        const existeUsuario = await this.authRepositoryI.findByEmail(userData.email);
+        const existeUsuario = await this.userRepositoryI.findByEmail(userData.email);
 
         if (existeUsuario) {
             return { ok: false, mensaje: "El correo ya está registrado" };
         }
 
-        const existeCedula = await this.authRepositoryI.findByCedula(userData.cedula);
+        const existeCedula = await this.userRepositoryI.findByCedula(userData.cedula);
 
         if (existeCedula) {
             console.log("Cedula ya registrada:", userData.cedula);
@@ -37,9 +40,9 @@ export class authService{
 
     async login(userData: loginUsuario){ 
 
-        const usuarioByCedula = userData.cedula ? await this.authRepositoryI.findByCedula(userData.cedula) : undefined;
+        const usuarioByCedula = userData.cedula ? await this.userRepositoryI.findByCedula(userData.cedula) : undefined;
 
-        const usuarioByEmail = userData.email ? await this.authRepositoryI.findByEmail(userData.email) : undefined;
+        const usuarioByEmail = userData.email ? await this.userRepositoryI.findByEmail(userData.email) : undefined;
 
         if( usuarioByCedula || usuarioByEmail ){
 

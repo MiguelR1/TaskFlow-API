@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { authService } from './auth.service';
-import { RegisterUserDto } from './auth.dto';
 import { loginUserSchema, registroUserSchema } from '../users/user.dto';
 
 const authServiceI = new authService();
@@ -12,15 +11,15 @@ export class authController {
         try {
 
             const validateData = registroUserSchema.parse(req.body);
-            const { nombre, email, password, cedula } = validateData;
+            const { nombre, email, password, cedula, rol } = validateData;
 
             // const { nombre, email, password, cedula } = req.body;
 
-            if (!nombre || !email || !password || !cedula) {
+            if (!nombre || !email || !password || !cedula || !rol) {
                 return res.status(400).json({ mensaje: "Faltan campos requeridos" });
             }
 
-            const nuevoUsuario = await authServiceI.registro({ nombre, email, password, cedula });
+            const nuevoUsuario = await authServiceI.registro({ nombre, email, password, cedula, rol });
 
             if (nuevoUsuario.ok) {
                 return res.status(201).json({ 

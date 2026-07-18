@@ -14,6 +14,7 @@ model Usuario {
   nombre   String?
   cedula   String @unique
   password String?
+  rol      Roles   @default(User)   
 
   // Relación: Un usuario tiene muchos proyectos (1 a N)
   projects      Proyecto[] 
@@ -73,5 +74,12 @@ enum Estado {
   Terminado
 
   @@schema("login_prueba")
+}
 
+// Enum para estandarizar los roles de usuario
+enum Roles{
+  User
+  Admin
+
+  @@schema("login_prueba")
 }

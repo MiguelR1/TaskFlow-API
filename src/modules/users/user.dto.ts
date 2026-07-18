@@ -1,4 +1,5 @@
 import z from "zod";
+import { Roles } from "../../../generated/prisma/browser";
 
 //Esquema base Zod
 export const userDto = z.object({
@@ -6,7 +7,8 @@ export const userDto = z.object({
     nombre:   z.string().min(2),
     cedula:   z.string().min(5),
     email:    z.string().email(),
-    password: z.string().min(6)
+    password: z.string().min(6),
+    rol:      z.nativeEnum(Roles)
 });
 
 // Registro usuario

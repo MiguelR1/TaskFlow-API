@@ -1,19 +1,22 @@
-import { Request, Response  } from "express";
+import { NextFunction, Request, Response  } from "express";
 import { proyectoService } from "./projects.service";
-import { projectDto } from "./projects.dto";
+import { busca_elimina_project_Schema, createProjectSchema, createProjectType, editProjectSchema, projectDto } from "./projects.dto";
+import { number } from "zod";
 
 
 const proyectoServiceI = new proyectoService();
 
 export class proyectoController{
 
-    async crearProyecto(req:Request, res:Response){
+    async crearProyecto(req:Request, res:Response, next:NextFunction){
         try {
-            const proyectoNuevo: projectDto = req.body;
+            const proyectoNuevo = createProjectSchema.parse(req.body);
 
             if (!proyectoNuevo) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
             }
+
+            //Buscar usuario si existe, y validacion
 
             const nuevoProyecto = await proyectoServiceI.crearProyecto(proyectoNuevo);
 
@@ -27,66 +30,102 @@ export class proyectoController{
             }
 
         } catch (error:any) {
-            res.status(500).json({mensaje: error.message || "Error creando el proyecto"});
+            next(error);
         }
     }
 
-    async editarProyecto(req:Request, res:Response){
+    async editarProyecto(req:Request, res:Response, next: NextFunction){
         try {
-            const {proyectoNuevo, idUsuario} = req.body;
+            const proyectoNuevo = editProjectSchema.parse(req.body);
+            const { idProyecto } = req.params;
+            const { idUsuario } = req.query;
 
-            if (!proyectoNuevo && !idUsuario) {
+            if (!proyectoNuevo && !idUsuario && !idProyecto) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
             }
 
-            const nuevoProyecto = await proyectoServiceI.editarProyecto(proyectoNuevo, idUsuario);
+            //Validacion existe proyecto
+            //Validacion usuario
 
-            if (nuevoProyecto.ok) {
-                return res.status(201).json({
-                    mensaje:"Proyecto editado exitosamente",
-                    proyecto: nuevoProyecto
-                })
+            const esAdmin = req.esAdmin;
+
+            if (proyectoNuevo.duenoId == Number(idUsuario)) {
+                const nuevoProyecto = await proyectoServiceI.editarProyecto(proyectoNuevo, Number(idUsuario), String(idProyecto),esAdmin!);
+    
+                if (nuevoProyecto.ok) {
+                    return res.status(201).json({
+                        mensaje:"Proyecto editado exitosamente",
+                        proyecto: nuevoProyecto
+                    })
+                }else{
+                    return res.status(409).json({ mensaje: nuevoProyecto.mensaje })
+                }
             }else{
-                return res.status(409).json({ mensaje: nuevoProyecto.mensaje })
+                return res.status(409).json({ mensaje: "No tienes permisos para editar este proyecto" });
             }
 
         } catch (error:any) {
-            res.status(500).json({mensaje: error.message || "Error editando el proyecto"});
+            next(error);
         }
     }
 
-    async eliminarProyectoById(req:Request, res:Response){
+    async eliminarProyectoById(req:Request, res:Response, next:NextFunction){
         try {
-            const {idProyecto, idUsuario}= req.body;
+            const { idUsuario } = req.query;
+            const { idProyecto } = req.params;
+            
+            if (!idProyecto && !idUsuario) {
+                return res.status(400).json({mensaje: "Faltan campos requeridos"})
+            }
+
+            //Validacion existe proyecto
+            //Validacion usuario
+
+            const esAdmin = req.esAdmin;
+
+            const proyectoEncontrado = await proyectoServiceI.getProyectoById(String(idProyecto), Number(idUsuario), esAdmin!);
+
+            if (proyectoEncontrado) {
+
+                if (Number(idUsuario) == proyectoEncontrado.proyecto?.duenoId) {
+                    
+                    const proyectoEliminado = await proyectoServiceI.eliminarProyecto(proyectoEncontrado.proyecto.id, proyectoEncontrado.proyecto.duenoId);
+
+                    if (proyectoEliminado.ok) {
+                        return res.status(201).json({
+                            mensaje:"Proyecto eliminado exitosamente",
+                            usuario:proyectoEliminado
+                        })
+                    }else{
+                        return res.status(409).json({ mensaje: proyectoEliminado.mensaje })
+                    }
+                }else{
+                    return res.status(409).json({ mensaje: "No tienes permisos para eliminar este proyecto" });
+                }
+            }
+        } catch (error:any) {
+            next(error);
+        }
+    }
+
+    //Falta probar estos
+
+    async getProyectoById(req:Request, res:Response, next:NextFunction){
+        try {
+            const { idProyecto } = req.params;
+
+            const { idUsuario } = req.query;
+
+            //Validacion existe proyecto
+            //Validacion usuario
 
             if (!idProyecto && !idUsuario) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
             }
 
-            const proyectoEliminado = await proyectoServiceI.eliminarProyecto(idProyecto, idUsuario);
+            const esAdmin = req.esAdmin;
 
-            if (proyectoEliminado.ok) {
-                return res.status(201).json({
-                    mensaje:"Proyecto eliminado exitosamente",
-                    usuario:proyectoEliminado
-                })
-            }else{
-                return res.status(409).json({ mensaje: proyectoEliminado.mensaje })
-            }
-        } catch (error:any) {
-            res.status(500).json({mensaje: error.message || "Error creando el proyecto"});
-        }
-    }
-
-    async getProyectoById(req:Request, res:Response){
-        try {
-            const {idProyecto, idUsuario} = req.body;
-
-            if (!idProyecto && !idUsuario) {
-                return res.status(400).json({mensaje: "Faltan campos requeridos"})
-            }
-
-            const proyectoSeleccionado = await proyectoServiceI.getProyectoById(idProyecto, idUsuario);
+            const proyectoSeleccionado = await proyectoServiceI.getProyectoById(String(idProyecto), Number(idUsuario), esAdmin!);
 
             if (proyectoSeleccionado.ok) {
                 return res.status(201).json({
@@ -97,19 +136,21 @@ export class proyectoController{
                 return res.status(409).json({ mensaje: proyectoSeleccionado.mensaje })
             }
         } catch (error:any) {
-            res.status(500).json({mensaje: error.message || "Error buscando el proyecto"});
+            next(error);
         }
     }
 
-    async getProyectos(req:Request, res:Response){
+    async getProyectosByUsuario(req:Request, res:Response, next:NextFunction){
         try {
-            const { idUsuario } = req.body;
+            const { idUsuario } = req.query;
 
             if (!idUsuario) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
             }
 
-            const nuevoProyecto = await proyectoServiceI.getProyectosByUsuarioId(idUsuario);
+            //Validacion usuario
+
+            const nuevoProyecto = await proyectoServiceI.getProyectosByUsuarioId(Number(idUsuario));
 
             if (nuevoProyecto.ok) {
                 return res.status(201).json({
@@ -121,7 +162,37 @@ export class proyectoController{
             }
 
         } catch (error:any) {
-            res.status(500).json({mensaje: error.message || "Error obteniendo proyectos"});
+            next(error);
+        }
+    }
+
+    async getProyectos(req:Request, res:Response, next:NextFunction){
+        try {
+            const { idUsuario } = req.query;
+
+            if (!idUsuario) {
+                return res.status(400).json({mensaje: "Faltan campos requeridos"})
+            }
+
+            const esAdmin = req.esAdmin;
+
+            if (esAdmin) {
+                const nuevoProyecto = await proyectoServiceI.getProyectos();
+    
+                if (nuevoProyecto.ok) {
+                    return res.status(201).json({
+                        mensaje:"Proyectos obtenidos exitosamente",
+                        usuario:nuevoProyecto
+                    })
+                }else{
+                    return res.status(409).json({ mensaje: nuevoProyecto.mensaje })
+                }
+            }else{
+                return res.status(409).json({mensaje: "No tiene permisos para traer todos los proyectos"});
+            }
+
+        } catch (error:any) {
+            next(error);
         }
     }
 

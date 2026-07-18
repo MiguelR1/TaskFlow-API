@@ -1,11 +1,11 @@
 import { proyectoRepository } from './projects.repository';
-import { projectDto } from './projects.dto';
+import { createProjectType, editProjectType, projectDto } from './projects.dto';
 
 const proyectoRepositoryI = new proyectoRepository();
 
 export class proyectoService{
 
-    async crearProyecto(proyectoData: projectDto){
+    async crearProyecto(proyectoData: createProjectType){
         const proyectoCreado = await proyectoRepositoryI.createProyecto(proyectoData);
 
         if (proyectoCreado) {
@@ -15,8 +15,8 @@ export class proyectoService{
         }
     }
 
-    async editarProyecto(proyectoData:projectDto, idUsuario:number){
-        const proyectoEditado = await proyectoRepositoryI.editProyecto(proyectoData, idUsuario);
+    async editarProyecto(proyectoData:editProjectType, idUsuario:number, idProyecto:string, esAdmin:boolean){
+        const proyectoEditado = await proyectoRepositoryI.editProyecto(proyectoData, idUsuario, idProyecto, esAdmin);
     
         if (proyectoEditado) {
             return {ok:true, proyecto:proyectoEditado}
@@ -35,23 +35,33 @@ export class proyectoService{
         }
     }
 
-    async getProyectoById(idProyecto:string, idUsuario:number){
-        const proyectoId = await proyectoRepositoryI.getProyectoById(idProyecto,idUsuario);
+    async getProyectoById(idProyecto:string, idUsuario:number, esAdmin:boolean){
+        const proyectoId = await proyectoRepositoryI.getProyectoById(idProyecto,idUsuario, esAdmin);
 
         if (proyectoId) {
             return {ok:true, proyecto:proyectoId}
         }else{
-            return {ok:false, mensaje:'Hubo un error al obtener informacion del proyecto'}
+            return {ok:false, mensaje:'No existe el proyecto'}
         }
     }
 
     async getProyectosByUsuarioId(idUsuario:number){
         const proyectosId = await proyectoRepositoryI.getProyectosByUsuarioId(idUsuario);
 
-        if (proyectosId) {
+        if (proyectosId.length > 0) {
             return {ok:true, proyecto:proyectosId}
         }else{
-            return {ok:false, mensaje:'Hubo un error al obtener informacion del proyecto'}
+            return {ok:false, mensaje:'No se encontraron proyectos'}
+        }
+    }
+
+    async getProyectos(){
+        const proyectosId = await proyectoRepositoryI.getProyectos();
+
+        if (proyectosId.length > 0) {
+            return {ok:true, proyecto:proyectosId}
+        }else{
+            return {ok:false, mensaje:'No se encontraron proyectos'}
         }
     }
 

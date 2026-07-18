@@ -1,17 +1,20 @@
 import {prisma} from '../../config/prisma';
-import {projectDto} from './projects.dto';
+import {createProjectType, editProjectType, projectDto} from './projects.dto';
 
 export class proyectoRepository{
 
-    async createProyecto(proyectoData: projectDto){
+    async createProyecto(proyectoData: createProjectType){
         return await prisma.proyecto.create({
             data: proyectoData
         })
     }
 
-    async getProyectoById(idProyecto:string, idUsuario:number){
+    async getProyectoById(idProyecto:string, idUsuario:number, esAdmin:boolean){
         return await prisma.proyecto.findFirst({
-            where: {id:idProyecto, duenoId:idUsuario}
+            where: {
+                id:idProyecto, 
+                ...(esAdmin ? {} : { duenoId:idUsuario })
+            }
         })
     }
 
@@ -22,9 +25,17 @@ export class proyectoRepository{
         })
     }
 
-    async editProyecto(nuevaData: projectDto, idUsuario:number){
+    //Obtener los proyectos 
+    async getProyectos(){
+        return await prisma.proyecto.findMany()
+    }
+
+    async editProyecto(nuevaData: editProjectType, idUsuario:number, idProyecto:string, esAdmin:boolean ){
         return await prisma.proyecto.update({
-            where: {id: nuevaData.id, duenoId: idUsuario},
+            where: {
+                id: idProyecto,
+                ...(esAdmin ? {} : { duenoId:idUsuario })
+            },
             data: nuevaData
         })
     }
