@@ -40,3 +40,6 @@ export const loginUserSchema = userDto.pick({
   );
 
 export type loginUsuario = z.infer<typeof loginUserSchema>;
+
+export const editUsuarioSchema = userDto;
+export type editUsuario = z.infer<typeof editUsuarioSchema>;

@@ -49,11 +49,11 @@ export class proyectoController{
 
             const esAdmin = req.esAdmin;
 
-            if (proyectoNuevo.duenoId == Number(idUsuario)) {
+            if (proyectoNuevo.duenoId == Number(idUsuario) || esAdmin) {
                 const nuevoProyecto = await proyectoServiceI.editarProyecto(proyectoNuevo, Number(idUsuario), String(idProyecto),esAdmin!);
     
                 if (nuevoProyecto.ok) {
-                    return res.status(201).json({
+                    return res.status(200).json({
                         mensaje:"Proyecto editado exitosamente",
                         proyecto: nuevoProyecto
                     })
@@ -92,7 +92,7 @@ export class proyectoController{
                     const proyectoEliminado = await proyectoServiceI.eliminarProyecto(proyectoEncontrado.proyecto.id, proyectoEncontrado.proyecto.duenoId);
 
                     if (proyectoEliminado.ok) {
-                        return res.status(201).json({
+                        return res.status(200).json({
                             mensaje:"Proyecto eliminado exitosamente",
                             usuario:proyectoEliminado
                         })
@@ -128,7 +128,7 @@ export class proyectoController{
             const proyectoSeleccionado = await proyectoServiceI.getProyectoById(String(idProyecto), Number(idUsuario), esAdmin!);
 
             if (proyectoSeleccionado.ok) {
-                return res.status(201).json({
+                return res.status(200).json({
                     mensaje:"Proyecto obtenido exitosamente",
                     usuario:proyectoSeleccionado
                 })
@@ -153,7 +153,7 @@ export class proyectoController{
             const nuevoProyecto = await proyectoServiceI.getProyectosByUsuarioId(Number(idUsuario));
 
             if (nuevoProyecto.ok) {
-                return res.status(201).json({
+                return res.status(200).json({
                     mensaje:"Proyectos obtenidos exitosamente",
                     usuario:nuevoProyecto
                 })
@@ -180,7 +180,7 @@ export class proyectoController{
                 const nuevoProyecto = await proyectoServiceI.getProyectos();
     
                 if (nuevoProyecto.ok) {
-                    return res.status(201).json({
+                    return res.status(200).json({
                         mensaje:"Proyectos obtenidos exitosamente",
                         usuario:nuevoProyecto
                     })

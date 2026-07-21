@@ -28,6 +28,7 @@ export class userRepository{
         return prisma.usuario.findMany();
     }
 
+    //Funciones secundarias
 
     async findByEmail(email: string) {
         return await prisma.usuario.findFirst({

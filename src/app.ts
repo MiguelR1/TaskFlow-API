@@ -5,6 +5,7 @@ import projectRoute from "../src/modules/projects/projects.routes";
 
 import { authMiddleware } from "./middlewares/authMiddleware";
 import { errorMiddleware } from "./middlewares/req.Middleware";
+import userRouter from "./modules/users/user.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +17,9 @@ app.use("/api/auth", authRoute);
 
 //Projects
 app.use("/api/projects", projectRoute);
+
+//Users
+app.use("/api/users", userRouter)
 
 //Middleware para mostrar errores tipados estrictos con Zod
 app.use(errorMiddleware);
