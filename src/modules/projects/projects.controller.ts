@@ -2,9 +2,12 @@ import { NextFunction, Request, Response  } from "express";
 import { proyectoService } from "./projects.service";
 import { busca_elimina_project_Schema, createProjectSchema, createProjectType, editProjectSchema, projectDto } from "./projects.dto";
 import { number } from "zod";
+import { userService } from "../users/user.service";
 
 
 const proyectoServiceI = new proyectoService();
+
+const userServiceI = new userService();
 
 export class proyectoController{
 
@@ -17,6 +20,12 @@ export class proyectoController{
             }
 
             //Buscar usuario si existe, y validacion
+
+            const usuarioExiste = await userServiceI.getUsuarioById(proyectoNuevo.duenoId);
+
+            if (usuarioExiste) {
+                return res.status(404).json({ mensaje: "No existe este usuario" });
+            }
 
             const nuevoProyecto = await proyectoServiceI.crearProyecto(proyectoNuevo);
 
@@ -44,12 +53,26 @@ export class proyectoController{
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
             }
 
-            //Validacion existe proyecto
-            //Validacion usuario
-
             const esAdmin = req.esAdmin;
 
+            //Validacion existe proyecto
+
+            const proyectoExiste = await proyectoServiceI.getProyectoById(String(idProyecto), Number(idUsuario), esAdmin!);
+
+            if (!proyectoExiste) {
+                return res.status(404).json({ mensaje: "No existe proyecto con ese id" });
+            }
+
+            //Validacion existe usuario
+
+            const usuarioExiste = await userServiceI.getUsuarioById(proyectoNuevo.duenoId);
+
+            if (usuarioExiste) {
+                return res.status(404).json({ mensaje: "No existe este usuario" });
+            }
+            
             if (proyectoNuevo.duenoId == Number(idUsuario) || esAdmin) {
+
                 const nuevoProyecto = await proyectoServiceI.editarProyecto(proyectoNuevo, Number(idUsuario), String(idProyecto),esAdmin!);
     
                 if (nuevoProyecto.ok) {
@@ -77,11 +100,23 @@ export class proyectoController{
             if (!idProyecto && !idUsuario) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
             }
-
-            //Validacion existe proyecto
-            //Validacion usuario
-
+            
             const esAdmin = req.esAdmin;
+            
+            //Validacion existe proyecto
+            const proyectoExiste = await proyectoServiceI.getProyectoById(String(idProyecto), Number(idUsuario), esAdmin!);
+    
+            if (!proyectoExiste) {
+                return res.status(404).json({ mensaje: "No existe este proyecto" });
+            }
+
+            //Validacion existe usuario
+
+            const usuarioExiste = await userServiceI.getUsuarioById(Number(idUsuario));
+
+            if (usuarioExiste) {
+                return res.status(404).json({ mensaje: "No existe este usuario" });
+            }
 
             const proyectoEncontrado = await proyectoServiceI.getProyectoById(String(idProyecto), Number(idUsuario), esAdmin!);
 
@@ -113,14 +148,18 @@ export class proyectoController{
     async getProyectoById(req:Request, res:Response, next:NextFunction){
         try {
             const { idProyecto } = req.params;
-
             const { idUsuario } = req.query;
-
-            //Validacion existe proyecto
-            //Validacion usuario
 
             if (!idProyecto && !idUsuario) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
+            }
+
+            //Validacion existe usuario
+
+            const usuarioExiste = await userServiceI.getUsuarioById(Number(idUsuario));
+
+            if (usuarioExiste) {
+                return res.status(404).json({ mensaje: "No existe este usuario" });
             }
 
             const esAdmin = req.esAdmin;
@@ -149,6 +188,12 @@ export class proyectoController{
             }
 
             //Validacion usuario
+
+            const usuarioExiste = await userServiceI.getUsuarioById(Number(idUsuario));
+
+            if (usuarioExiste) {
+                return res.status(404).json({ mensaje: "No existe este usuario" });
+            }
 
             const nuevoProyecto = await proyectoServiceI.getProyectosByUsuarioId(Number(idUsuario));
 

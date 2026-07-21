@@ -24,8 +24,8 @@ export class userController{
 
             const esAdmin = req.esAdmin;
 
-            //Pendiente validacion para que usuario no editado todos sin permiso
-            // if (usuarioInfo.id == Number(idUsuario) || esAdmin) {
+            //validacion para que usuario no editado todos sin permiso
+            if (usuarioInfo.id == Number(idUsuario) || esAdmin) {
                 const usuarioEditado = await userServiceI.editUsuario(Number(idUsuario), usuarioInfo);
     
                 if (usuarioEditado.ok) {
@@ -36,9 +36,9 @@ export class userController{
                 }else{
                     return res.status(409).json({ mensaje: usuarioEditado.mensaje })
                 }
-            // }else{
-                // return res.status(409).json({ mensaje: "No tienes permisos para editar este usuario" });
-            // }
+            }else{
+                return res.status(409).json({ mensaje: "No tienes permisos para editar este usuario" });
+            }
 
 
         } catch (error) {
