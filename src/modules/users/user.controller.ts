@@ -10,9 +10,9 @@ export class userController{
         try {
             const usuarioInfo =  editUsuarioSchema.parse(req.body);
 
-            const {idUsuario} = req.params;
+            const idUsuario = req.usuario.id;
 
-            if (!usuarioInfo && !idUsuario) {
+            if (!usuarioInfo) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
             }
 
@@ -29,9 +29,9 @@ export class userController{
                 const usuarioEditado = await userServiceI.editUsuario(Number(idUsuario), usuarioInfo);
     
                 if (usuarioEditado.ok) {
-                    return res.status(201).json({
-                            mensaje:"Usuario creado exitosamente",
-                            usuario: usuarioEditado
+                    return res.status(200).json({
+                            mensaje:"Usuario editado exitosamente",
+                            usuario: usuarioEditado.usuario
                         })
                 }else{
                     return res.status(409).json({ mensaje: usuarioEditado.mensaje })
@@ -48,7 +48,7 @@ export class userController{
 
     async deleteUsuario(req:Request, res: Response, next:NextFunction){
         try {
-            const {idUsuario} = req.params;
+            const idUsuario = req.usuario.id;
 
             if (!idUsuario) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
@@ -69,7 +69,7 @@ export class userController{
                     
                     return res.status(200).json({
                         mensaje:"Usuario eliminado exitosamente",
-                        proyecto: usuarioEliminado
+                        usuario: usuarioEliminado.usuario
                     })
                 }else{
                     return res.status(409).json({ mensaje: usuarioEliminado.mensaje })
@@ -87,7 +87,7 @@ export class userController{
     async getUsuarioById(req:Request, res: Response, next:NextFunction){
 
         try {
-            const {idUsuario} = req.params;
+            const idUsuario = req.usuario.id;
     
             if (!idUsuario) {
                 return res.status(400).json({mensaje: "Faltan campos requeridos"})
@@ -98,7 +98,7 @@ export class userController{
             if (usuarioEncontrado.ok) {
                 return res.status(200).json({
                     mensaje:"Usuario consultado exitosamente",
-                    proyecto: usuarioEncontrado
+                    usuario: usuarioEncontrado.usuario
                 })
             }else{
                 return res.status(409).json({ mensaje: usuarioEncontrado.mensaje })
@@ -118,7 +118,7 @@ export class userController{
             if (usuariosConsultado.ok) {
                 return res.status(200).json({
                     mensaje:"Usuarios consultado exitosamente",
-                    proyecto: usuariosConsultado
+                    usuario: usuariosConsultado.usuario
                 })
             }else{
                 return res.status(409).json({ mensaje: usuariosConsultado.mensaje })

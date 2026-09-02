@@ -43,3 +43,5 @@ export type loginUsuario = z.infer<typeof loginUserSchema>;
 
 export const editUsuarioSchema = userDto;
 export type editUsuario = z.infer<typeof editUsuarioSchema>;
+
+export interface UserWithoutPassword extends Omit<editUsuario, 'password'> {}

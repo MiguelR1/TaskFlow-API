@@ -7,7 +7,7 @@ const authServiceI = new authService();
 export class authController {
 
     async register(req: Request, res: Response, next: NextFunction) {
-        
+
         try {
 
             const validateData = registroUserSchema.parse(req.body);
@@ -22,16 +22,17 @@ export class authController {
             const nuevoUsuario = await authServiceI.registro({ nombre, email, password, cedula, rol });
 
             if (nuevoUsuario.ok) {
-                return res.status(201).json({ 
-                    mensaje: "Usuario registrado exitosamente", 
-                    usuario: nuevoUsuario 
+                return res.status(201).json({
+                    mensaje: "Usuario registrado exitosamente",
+                    usuario: nuevoUsuario.usuario,
+                    token: nuevoUsuario.token
                 });
-            }else{
-                return res.status(409).json({mensaje: nuevoUsuario.mensaje})
+            } else {
+                return res.status(409).json({ mensaje: nuevoUsuario.mensaje })
             }
 
-        } catch (error:any) {
-           next(error);
+        } catch (error: any) {
+            next(error);
         }
     }
 
@@ -42,23 +43,23 @@ export class authController {
             const { email, password, cedula } = validateData;
 
             if ((!email && !cedula) || !password) {
-                return res.status(400).json({ message: "Faltan campos requeridos" });
+                return res.status(400).json({ mensaje: "Faltan campos requeridos" });
             }
-            
+
             const usuarioEncontrado = await authServiceI.login({ email, cedula, password });
 
             if (usuarioEncontrado.ok) {
-                return res.status(200).json({ 
-                    mensaje: "Usuario logeado exitosamente", 
-                    usuario: usuarioEncontrado.usuario, 
-                    token: usuarioEncontrado.token 
+                return res.status(200).json({
+                    mensaje: "Usuario logeado exitosamente",
+                    usuario: usuarioEncontrado.usuario,
+                    token: usuarioEncontrado.token
                 });
             } else {
-                return res.status(401).json({ message: usuarioEncontrado.mensaje || "Credenciales inválidas" });
+                return res.status(401).json({ mensaje: usuarioEncontrado.mensaje || "Credenciales inválidas" });
             }
 
-        }catch (error:any) {
-           next(error);
+        } catch (error: any) {
+            next(error);
         }
     }
 

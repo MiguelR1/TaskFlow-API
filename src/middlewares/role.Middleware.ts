@@ -4,7 +4,7 @@ import { prisma } from '../config/prisma';
 export const checkAdmin = async (req: Request, res:Response, next: NextFunction) => {
     try {
 
-        const idUsuario = req.query.idUsuario || req.params.idUsuario;
+        const idUsuario = req.usuario.id;
 
         if (!idUsuario) {
             req.esAdmin = false;
