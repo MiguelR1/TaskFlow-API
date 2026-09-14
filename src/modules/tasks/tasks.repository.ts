@@ -1,3 +1,4 @@
+import { Estado } from "../../../generated/prisma/enums";
 import { prisma } from "../../config/prisma";
 import { editTarea, editTareaT, registroTareaT } from "./tasks.dto";
 
@@ -16,6 +17,13 @@ export class taskRepository {
         return await prisma.tarea.update(
             { data: dataTarea, where: { id: idTarea } }
         )
+    }
+
+    async editStatus(idTarea: string, status: Estado) {
+        return await prisma.tarea.update({
+            data: { estado: status },
+            where: { id: idTarea }
+        })
     }
 
     async getTareaById(idTarea: string) {

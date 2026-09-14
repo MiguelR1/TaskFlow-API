@@ -15,6 +15,10 @@ taskRouter.use(checkAdmin);
 
 taskRouter.post('/createTask', taskControllerI.createTarea);
 
+taskRouter.put('/editTask', taskControllerI.editTarea);
+
+taskRouter.put('/editStatusTask', taskControllerI.editStatusTarea);
+
 taskRouter.get('/getTaskById', taskControllerI.getTareaById);
 taskRouter.get('/getTareas', taskControllerI.getTareasByProyecto);
 

@@ -3,6 +3,7 @@ import { taskService } from './tasks.service';
 import { editTarea, registroTarea } from './tasks.dto';
 import { userService } from '../users/user.service';
 import { proyectoService } from '../projects/projects.service';
+import { Estado } from '../../../generated/prisma/enums';
 
 const userServiceI = new userService();
 const tareaServiceI = new taskService();
@@ -101,6 +102,63 @@ export class taskController {
                 Number(idUsuario),
                 String(idProyecto),
                 dataTarea)
+
+            if (tareaEditada.ok) {
+                return res.status(200).json({
+                    mensaje: "Tarea editada exitosamente",
+                    tarea: tareaEditada.tarea
+                })
+            } else {
+                return res.status(409).json({ mensaje: tareaEditada.mensaje })
+            }
+
+        } else {
+
+            return res.status(409).json({ mensaje: "No tienes permisos para editar tareas en este proyecto" });
+
+        }
+
+    }
+
+    async  editStatusTarea(req: Request, res: Response, next: NextFunction) {
+
+        const { idUsuario, idProyecto, idTarea, estado } = req.body;
+
+        if (!idUsuario || !estado || !idProyecto || !idTarea) {
+            return res.status(400).json({ mensaje: "Faltan campos requeridos" })
+        }
+
+
+        const usuarioExiste = await userServiceI.getUsuarioById(Number(idUsuario));
+
+        if (!usuarioExiste) {
+            return res.status(404).json({ mensaje: "El usuario no existe" });
+        }
+
+        const proyectoExiste = await proyectoServiceI.getProyectoById(String(idProyecto), Number(idUsuario), false);
+
+        if (!proyectoExiste) {
+            return res.status(404).json({ mensaje: "El proyecto no existe" });
+        }
+
+        const tareaEncontrada = await tareaServiceI.getTareaById(
+            Number(idUsuario),
+            String(idProyecto),
+            String(idTarea)
+        );
+
+        if (!tareaEncontrada.ok) {
+            return res.status(404).json({ mensaje: "La tarea no existe" });
+        }
+
+        const esAdmin = req.esAdmin;
+
+        //validacion para que usuario no editado todos sin permiso
+        if (proyectoExiste.proyecto?.duenoId == Number(idUsuario) || esAdmin) {
+
+            const tareaEditada = await tareaServiceI.editStatusTarea(
+                String(idTarea),
+                estado as Estado)
 
             if (tareaEditada.ok) {
                 return res.status(200).json({

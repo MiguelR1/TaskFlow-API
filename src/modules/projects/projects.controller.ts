@@ -169,7 +169,7 @@ export class proyectoController {
             if (proyectoSeleccionado.ok) {
                 return res.status(200).json({
                     mensaje: "Proyecto obtenido exitosamente",
-                    usuario: proyectoSeleccionado.proyecto
+                    proyecto: proyectoSeleccionado.proyecto
                 })
             } else {
                 return res.status(409).json({ mensaje: proyectoSeleccionado.mensaje })

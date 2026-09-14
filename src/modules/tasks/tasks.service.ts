@@ -2,6 +2,7 @@ import { proyectoService } from "../projects/projects.service";
 import { editTareaT, registroTareaT, tareaDto } from "./tasks.dto";
 import { taskRepository } from "./tasks.repository";
 import { userService } from '../users/user.service';
+import { Estado } from "../../../generated/prisma/enums";
 
 export class taskService {
 
@@ -32,6 +33,24 @@ export class taskService {
     async editTarea(idTarea: string, idUsuario: number, idProyecto: string, dataTarea: editTareaT) {
 
         const tareaEditada = await this.tareaRepositoryI.editTarea(idTarea, dataTarea);
+
+        if (tareaEditada) {
+            return {
+                ok: true,
+                mensaje: "Tarea editada exitosamente",
+                tarea: tareaEditada
+            };
+        } else {
+            return {
+                ok: false,
+                mensaje: "Ocurrio un error al editar la tarea"
+            };
+        }
+    }
+
+    async editStatusTarea(idTarea: string, estado: Estado) {
+
+        const tareaEditada = await this.tareaRepositoryI.editStatus(idTarea, estado);
 
         if (tareaEditada) {
             return {

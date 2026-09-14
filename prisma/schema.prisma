@@ -19,6 +19,8 @@ model Usuario {
   tareasAsignadas Tarea[]    @relation("tareaAsignada")
   tareasCreadas   Tarea[]    @relation("tareaCreador")
 
+  comentarios Comentario[]
+
   @@schema("login_prueba")
 }
 
@@ -48,9 +50,12 @@ model Tarea {
   fechaTerminada DateTime?
   fechaCreada    DateTime  @default(now())
   horasEstimadas Decimal   @db.Decimal
+  clase          String?
+  color          String?
   asignado       Usuario?  @relation("tareaAsignada", fields: [asignadorId], references: [id])
   creador        Usuario   @relation("tareaCreador", fields: [creadorId], references: [id], onDelete: Cascade)
   proyecto       Proyecto  @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  comentarios Comentario[]
 
   @@schema("login_prueba")
 }
@@ -66,6 +71,20 @@ enum Estado {
 enum Roles {
   User
   Admin
+
+  @@schema("login_prueba")
+}
+
+model Comentario {
+  id        String   @id @default(uuid())
+  contenido String
+  fecha     DateTime @default(now())
+
+  tareaId String
+  tarea   Tarea  @relation(fields: [tareaId], references: [id], onDelete: Cascade)
+
+  autorId Int
+  autor   Usuario @relation(fields: [autorId], references: [id], onDelete: Cascade)
 
   @@schema("login_prueba")
 }

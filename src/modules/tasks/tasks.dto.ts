@@ -10,7 +10,9 @@ export const tareaDto = z.object({
     creadorId: z.number(),
     asignadorId: z.number().optional(),
     fechaTerminada: z.string().optional(),
-    horasEstimadas: z.number()
+    horasEstimadas: z.number(),
+    clase: z.string().optional(),
+    color: z.string().optional()
 });
 
 export const registroTarea = tareaDto.omit({ id: true, creadorId: true });
