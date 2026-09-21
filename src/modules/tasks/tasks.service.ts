@@ -71,11 +71,23 @@ export class taskService {
 
         const tareaEncontrada = await this.tareaRepositoryI.getTareaById(idTarea);
 
-        if (tareaEncontrada) {
+        //buscar info de asignado y creador
+        const usuarioAsignado = await this.userServiceI.getUsuarioById(Number(tareaEncontrada?.asignadorId));
+        const usuarioCreador = await this.userServiceI.getUsuarioById(Number(tareaEncontrada?.creadorId));
+
+
+        if (tareaEncontrada && usuarioAsignado && usuarioCreador) {
+
+            const tareaConInfo = {
+                ...tareaEncontrada,
+                asignado: usuarioAsignado.usuario?.nombre,
+                creador: usuarioCreador.usuario?.nombre
+            }
+
             return {
                 ok: true,
                 mensaje: "Tarea consultada exitosamente",
-                tarea: tareaEncontrada
+                tarea: tareaConInfo
             };
         } else {
             return {
