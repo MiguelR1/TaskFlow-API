@@ -171,4 +171,40 @@ export class taskService {
             };
         }
     }
+
+    // 1. Insertar comentario
+    async createComentario(contenido: string, tareaId: string, autorId: number) {
+        const comentarioCreado = await this.tareaRepositoryI.createComentario(contenido, tareaId, autorId);
+
+        if (comentarioCreado) {
+            return {
+                ok: true,
+                mensaje: "Comentario creado exitosamente",
+                comentario: comentarioCreado
+            };
+        } else {
+            return {
+                ok: false,
+                mensaje: "Ocurrió un error al crear el comentario"
+            };
+        }
+    }
+
+    // 2. Obtener comentarios por tareaId y autorId
+    async getComentariosByTareaYUsuario(tareaId: string, autorId: number) {
+        const comentariosEncontrados = await this.tareaRepositoryI.getComentariosByTareaYUsuario(tareaId, autorId);
+
+        if (comentariosEncontrados !== null) {
+            return {
+                ok: true,
+                mensaje: "Comentarios consultados exitosamente",
+                comentarios: comentariosEncontrados
+            };
+        } else {
+            return {
+                ok: false,
+                mensaje: "Ocurrió un error al consultar los comentarios"
+            };
+        }
+    }
 }

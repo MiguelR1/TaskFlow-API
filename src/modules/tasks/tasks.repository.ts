@@ -77,6 +77,44 @@ export class taskRepository {
         return valorHoras;
     }
 
+    //Seccion comentarios
+    // 1. Insertar comentario
+    async createComentario(contenido: string, tareaId: string, autorId: number) {
+        try {
+            const nuevoComentario = await prisma.comentario.create({
+                data: {
+                    contenido,
+                    tareaId,
+                    autorId,
+                    fecha: new Date()
+                }
+            });
+            return nuevoComentario;
+        } catch (error) {
+            console.error("Error al crear comentario:", error);
+            return null;
+        }
+    }
+
+    // 2. Obtener comentarios por tareaId y autorId
+    async getComentariosByTareaYUsuario(tareaId: string, autorId: number) {
+        try {
+            const comentarios = await prisma.comentario.findMany({
+                where: {
+                    tareaId,
+                    autorId
+                },
+                orderBy: {
+                    fecha: 'asc'
+                }
+            });
+            return comentarios;
+        } catch (error) {
+            console.error("Error al obtener comentarios por tarea y usuario:", error);
+            return null;
+        }
+    }
+
 
 
 }

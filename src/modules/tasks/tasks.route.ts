@@ -28,4 +28,8 @@ taskRouter.get('/getHorasRegistradas', taskControllerI.getHorasRegistradas);
 
 taskRouter.get('/getTareasCompletadas', taskControllerI.getTareasCompletadas);
 
+//METODOS DE COMENTARIOS
+taskRouter.post('/comentarios/create', taskControllerI.createComentario);
+taskRouter.get('/comentarios/getComentarios', taskControllerI.getComentariosByTareaYUsuario);
+
 export default taskRouter;

@@ -120,7 +120,7 @@ export class taskController {
 
     }
 
-    async  editStatusTarea(req: Request, res: Response, next: NextFunction) {
+    async editStatusTarea(req: Request, res: Response, next: NextFunction) {
 
         const { idUsuario, idProyecto, idTarea, estado } = req.body;
 
@@ -379,6 +379,65 @@ export class taskController {
             })
         } else {
             return res.status(409).json({ mensaje: tareasCompletadas.mensaje })
+        }
+    }
+
+    // 1. Insertar comentario
+    async createComentario(req: Request, res: Response, next: NextFunction) {
+        const autorId = req.usuario.id;
+        const { contenido, tareaId } = req.body;
+
+        if (!autorId || !contenido || !tareaId) {
+            return res.status(400).json({ mensaje: "Faltan campos requeridos" });
+        }
+
+        const usuarioExiste = await userServiceI.getUsuarioById(Number(autorId));
+        if (!usuarioExiste) {
+            return res.status(404).json({ mensaje: "El usuario no existe" });
+        }
+
+        const comentarioCreado = await tareaServiceI.createComentario(
+            String(contenido),
+            String(tareaId),
+            Number(autorId)
+        );
+
+        if (comentarioCreado.ok) {
+            return res.status(200).json({
+                mensaje: "Comentario creado exitosamente",
+                comentario: comentarioCreado.comentario
+            });
+        } else {
+            return res.status(409).json({ mensaje: comentarioCreado.mensaje });
+        }
+    }
+
+    // 2. Obtener comentarios por tareaId y autorId
+    async getComentariosByTareaYUsuario(req: Request, res: Response, next: NextFunction) {
+        const autorId = req.usuario.id;
+        const { tareaId } = req.query;
+
+        if (!autorId || !tareaId) {
+            return res.status(400).json({ mensaje: "Faltan campos requeridos" });
+        }
+
+        const usuarioExiste = await userServiceI.getUsuarioById(Number(autorId));
+        if (!usuarioExiste) {
+            return res.status(404).json({ mensaje: "El usuario no existe" });
+        }
+
+        const comentariosEncontrados = await tareaServiceI.getComentariosByTareaYUsuario(
+            String(tareaId),
+            Number(autorId)
+        );
+
+        if (comentariosEncontrados.ok) {
+            return res.status(200).json({
+                mensaje: "Comentarios consultados exitosamente",
+                comentarios: comentariosEncontrados.comentarios
+            });
+        } else {
+            return res.status(409).json({ mensaje: comentariosEncontrados.mensaje });
         }
     }
 }
