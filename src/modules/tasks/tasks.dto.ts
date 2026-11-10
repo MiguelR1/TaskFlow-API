@@ -15,8 +15,22 @@ export const tareaDto = z.object({
     color: z.string().optional()
 });
 
+export const comentarioDto = z.object({
+    id: z.string(),
+    contenido: z.string(),
+    fecha: z.date(),
+    tareaId: z.string(),
+    autorId: z.number()
+});
+
 export const registroTarea = tareaDto.omit({ id: true, creadorId: true });
 export type registroTareaT = z.infer<typeof registroTarea>;
 
 export const editTarea = tareaDto;
-export type editTareaT = z.infer<typeof editTarea>; 
+export type editTareaT = z.infer<typeof editTarea>;
+
+export const registroComentario = comentarioDto.omit({ id: true, autorId: true });
+export type registroComentarioT = z.infer<typeof registroComentario>;
+
+export const getComentariosByTareaYUsuario = comentarioDto.omit({ id: true });
+export type getComentariosByTareaYUsuarioT = z.infer<typeof getComentariosByTareaYUsuario>;

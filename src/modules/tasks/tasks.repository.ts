@@ -1,6 +1,6 @@
 import { Estado } from "../../../generated/prisma/enums";
 import { prisma } from "../../config/prisma";
-import { editTarea, editTareaT, registroTareaT } from "./tasks.dto";
+import { editTarea, editTareaT, registroComentarioT, registroTareaT } from "./tasks.dto";
 
 export class taskRepository {
 
@@ -79,14 +79,17 @@ export class taskRepository {
 
     //Seccion comentarios
     // 1. Insertar comentario
-    async createComentario(contenido: string, tareaId: string, autorId: number) {
+    async createComentario(contenido: registroComentarioT, autorId: number) {
         try {
+
+            console.log('contenidoo createee', contenido);
+
+            contenido.fecha = new Date(contenido.fecha);
+
             const nuevoComentario = await prisma.comentario.create({
                 data: {
-                    contenido,
-                    tareaId,
-                    autorId,
-                    fecha: new Date()
+                    ...contenido,
+                    autorId
                 }
             });
             return nuevoComentario;

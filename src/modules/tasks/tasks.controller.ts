@@ -385,9 +385,9 @@ export class taskController {
     // 1. Insertar comentario
     async createComentario(req: Request, res: Response, next: NextFunction) {
         const autorId = req.usuario.id;
-        const { contenido, tareaId } = req.body;
+        const { contenidoCreate } = req.body;
 
-        if (!autorId || !contenido || !tareaId) {
+        if (!autorId || !contenidoCreate) {
             return res.status(400).json({ mensaje: "Faltan campos requeridos" });
         }
 
@@ -397,8 +397,7 @@ export class taskController {
         }
 
         const comentarioCreado = await tareaServiceI.createComentario(
-            String(contenido),
-            String(tareaId),
+            contenidoCreate,
             Number(autorId)
         );
 

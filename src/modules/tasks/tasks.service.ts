@@ -1,5 +1,5 @@
 import { proyectoService } from "../projects/projects.service";
-import { editTareaT, registroTareaT, tareaDto } from "./tasks.dto";
+import { editTareaT, registroComentarioT, registroTareaT, tareaDto } from "./tasks.dto";
 import { taskRepository } from "./tasks.repository";
 import { userService } from '../users/user.service';
 import { Estado } from "../../../generated/prisma/enums";
@@ -173,8 +173,8 @@ export class taskService {
     }
 
     // 1. Insertar comentario
-    async createComentario(contenido: string, tareaId: string, autorId: number) {
-        const comentarioCreado = await this.tareaRepositoryI.createComentario(contenido, tareaId, autorId);
+    async createComentario(contenido: registroComentarioT, autorId: number) {
+        const comentarioCreado = await this.tareaRepositoryI.createComentario(contenido, autorId);
 
         if (comentarioCreado) {
             return {
